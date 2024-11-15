@@ -1,0 +1,23 @@
+D1
+https://developers.cloudflare.com/d1/get-started/
+
+set up schema locally
+npx wrangler d1 execute weight-liftr-db-1 --local --file=./schema.sql
+
+query all local tables
+npx wrangler d1 execute weight-liftr-db-1 --local --command="SELECT name FROM sqlite_master WHERE type='table'";
+
+query Db locally
+npx wrangler d1 execute weight-liftr-db-1 --local --command="SELECT * FROM Users"    
+npx wrangler d1 execute weight-liftr-db-1 --local --command="DELETE FROM Users"  
+npx wrangler d1 execute weight-liftr-db-1 --local --command="DELETE FROM Goals"      
+
+
+deploy database to remote
+npx wrangler d1 execute weight-liftr-db-1 --remote --file=./schema.sql
+
+query database from remote
+npx wrangler d1 execute weight-liftr-db-1 --remote --command="SELECT * FROM Users"
+
+## deploy to live
+npx wrangler deploy
