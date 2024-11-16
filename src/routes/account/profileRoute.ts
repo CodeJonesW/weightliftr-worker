@@ -14,12 +14,12 @@ export const profileRoute = async (context: Context): Promise<Response> => {
 	const id = env.WL_DURABLE_OBJECT.idFromString(user.user_id);
 	const stub = env.WL_DURABLE_OBJECT.get(id);
 
-	let workouts = await stub.getWorkouts();
+	// let workouts = await stub.getWorkouts();
 
 	const responseData = {
 		message: 'Profile data',
 		user: user,
-		workouts,
+		// workouts,
 	};
 
 	return new Response(JSON.stringify(responseData), {

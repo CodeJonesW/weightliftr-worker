@@ -4,6 +4,7 @@ import { Env } from '../types';
 export const verifyToken = async (request: Request, env: Env): Promise<{ user: any } | Response> => {
 	const authHeader = request.headers.get('Authorization');
 	if (!authHeader || !authHeader.startsWith('Bearer ')) {
+		console.log('Unauthorized', authHeader);
 		return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 			status: 401,
 			headers: { 'Content-Type': 'application/json' },
