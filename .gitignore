@@ -172,4 +172,5 @@ dist
 .wrangler/
 
 
-./notes.txt
+notes.txt
+wrangler.toml
