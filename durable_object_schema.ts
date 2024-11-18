@@ -1,7 +1,8 @@
 const schema = `
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id varchar(500) PRIMARY KEY,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    workout_text TEXT
 );
 `;
 
