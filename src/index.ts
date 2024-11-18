@@ -44,13 +44,10 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				workout_id
 			);
 
-			// If your library provides `.raw()`, it may return raw data
-			// e.g., [ [ "some_id", "some_text" ] ] instead of [{ workout_id: "some_id", workout_text: "some_text" }]
 			// @ts-ignore
 			const rawResult = cursor.raw().toArray();
 			console.log('rawResult:', rawResult);
 
-			// Map the raw results to objects if necessary
 			// @ts-ignore
 			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
 				workout_id,
@@ -69,13 +66,10 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>('SELECT * FROM Workout');
 
-			// If your library provides `.raw()`, it may return raw data
-			// e.g., [ [ "some_id", "some_text" ] ] instead of [{ workout_id: "some_id", workout_text: "some_text" }]
 			// @ts-ignore
 			const rawResult = cursor.raw().toArray();
 			console.log('rawResult:', rawResult);
 
-			// Map the raw results to objects if necessary
 			// @ts-ignore
 			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
 				workout_id,
@@ -83,7 +77,6 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				workout_text,
 			}));
 
-			// Return the first object if only one result is expected
 			return result;
 		} catch (error) {
 			console.error('Error fetching workouts:', error);
@@ -132,9 +125,12 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 const app = new Hono<{ Bindings: Env }>();
 
+// Account routes
 app.post('/api/login', loginRoute);
 app.post('/api/register', registerRoute);
 app.get('/api/profile', profileRoute);
+
+// Workout routes
 app.get('/api/workout', getWorkoutRoute);
 app.post('/api/workout', createWorkoutRoute);
 app.delete('/api/workout', deleteWorkoutRoute);
