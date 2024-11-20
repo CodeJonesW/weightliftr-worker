@@ -6,17 +6,21 @@ CREATE TABLE IF NOT EXISTS Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
 );
 
-CREATE TABLE IF NOT EXISTS Auth (
-    auth_id INTEGER PRIMARY KEY,
-    user_id INTEGER,
-    login_attempt_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY(user_id) REFERENCES Users(user_id)
-);
-
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id varchar(500) PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     workout_text TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Exercise (
+    exercise_id varchar(500) PRIMARY KEY,
+    workout_id varchar(500),
+    reps varchar(500),
+    sets varchar(500),
+    weight varchar(500),
+    name varchar(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(workout_id) REFERENCES Workout(workout_id)
 );
 `;
 

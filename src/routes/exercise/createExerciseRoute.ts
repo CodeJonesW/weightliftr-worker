@@ -1,12 +1,18 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
 
-export const getWorkoutRoute = async (context: Context): Promise<Response> => {
+export const createExerciseRoute = async (context: Context): Promise<Response> => {
+	console.log('createExerciseRoute');
 	const { verifyToken } = await import('../../utils/auth');
 	try {
 		const { req: request, env } = context;
-		const url = new URL(request.url);
-		const workout_id = url.searchParams.get('workout_id');
+		const { exercise, workout_id } = await request.json();
+		const { reps, sets, weight, name } = exercise;
+		console.log('reps:', reps);
+		console.log('sets:', sets);
+		console.log('weight:', weight);
+		console.log('name:', name);
+		console.log('workout_id:', workout_id);
 
 		const authResponse = await verifyToken(request.raw, env);
 		if (authResponse instanceof Response) return authResponse;
@@ -14,10 +20,9 @@ export const getWorkoutRoute = async (context: Context): Promise<Response> => {
 		const user = authResponse.user;
 		const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
 		const stub = env.WL_DURABLE_OBJECT.get(id);
-		const meta = await stub.getWorkout(workout_id);
-		const exercises = await stub.getExercisesByWorkoutId(workout_id);
+		const result = await stub.createExercise(reps, sets, weight, name, workout_id);
 
-		return new Response(JSON.stringify({ meta, exercises }), {
+		return new Response(JSON.stringify({ workout_id: result }), {
 			status: 200,
 			headers: { 'Content-Type': 'application/json' },
 		});

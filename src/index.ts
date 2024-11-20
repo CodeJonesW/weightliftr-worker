@@ -7,6 +7,7 @@ import {
 	deleteWorkoutRoute,
 	getWorkoutRoute,
 	updateWorkoutRoute,
+	createExerciseRoute,
 } from './routes';
 import { Hono } from 'hono';
 import { DurableObject } from 'cloudflare:workers';
@@ -55,7 +56,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		return result.length > 0;
 	}
 
-	async getWorkout(workout_id: string) {
+	getWorkout(workout_id: string) {
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>(
 				'SELECT * FROM Workout WHERE workout_id = ?',
@@ -80,7 +81,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 			throw error;
 		}
 	}
-	async getWorkouts() {
+	getWorkouts() {
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>('SELECT * FROM Workout');
 
@@ -102,9 +103,8 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		}
 	}
 
-	async createWorkout() {
+	createWorkout() {
 		const workoutId = uuidv4();
-
 		const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
 			'INSERT INTO Workout (workout_id) VALUES (?) RETURNING workout_id',
 			workoutId
@@ -115,7 +115,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		return result[0][0];
 	}
 
-	async updateWorkout(workoutId: string, workoutText: string) {
+	updateWorkout(workoutId: string, workoutText: string) {
 		console.log('UPDATE Workout SET workout_text = ? WHERE workout_id = ?');
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
@@ -130,14 +130,53 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		}
 	}
 
-	async deleteWorkout(workoutId: string) {
-		const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
+	deleteWorkout(workoutId: string) {
+		const c1 = this.ctx.storage.sql.exec<{ workout_id: string }>('DELETE FROM Exercise WHERE workout_id = ?;', workoutId);
+
+		const c2 = this.ctx.storage.sql.exec<{ workout_id: string }>(
 			'DELETE FROM Workout WHERE workout_id = ? RETURNING workout_id',
 			workoutId
 		);
 		// @ts-ignore
+		const result = c2.raw().toArray();
+		return result[0][0];
+	}
+
+	createExercise(reps: string, sets: string, weight: string, name: string, workout_id: string) {
+		const exerciseId = uuidv4();
+		const cursor = this.ctx.storage.sql.exec<{ exercise_id: string }>(
+			'INSERT INTO Exercise (exercise_id, reps, sets, weight, name, workout_id) VALUES (?, ?, ?, ?, ?, ?) RETURNING exercise_id',
+			exerciseId,
+			reps,
+			sets,
+			weight,
+			name,
+			workout_id
+		);
+		// @ts-ignore
 		const result = cursor.raw().toArray();
 		return result[0][0];
+	}
+
+	getExercisesByWorkoutId(workout_id: string) {
+		const cursor = this.ctx.storage.sql.exec<{ exercise_id: string; reps: string; sets: string; weight: string; name: string }>(
+			'SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?',
+			workout_id
+		);
+		// @ts-ignore
+		const rawResult = cursor.raw().toArray();
+		console.log('rawResult:', rawResult);
+
+		// @ts-ignore
+		const result = rawResult.map(([exercise_id, reps, sets, weight, name]) => ({
+			exercise_id,
+			reps,
+			sets,
+			weight,
+			name,
+		}));
+
+		return result;
 	}
 }
 
@@ -153,5 +192,8 @@ app.get('/api/workout', getWorkoutRoute);
 app.post('/api/workout', createWorkoutRoute);
 app.delete('/api/workout', deleteWorkoutRoute);
 app.put('/api/workout', updateWorkoutRoute);
+
+// Exercise routes
+app.post('/api/exercise', createExerciseRoute);
 
 export default app;
