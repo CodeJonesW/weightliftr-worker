@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import { checkIfUserExistsByEmail } from '../../utils/db_utils/db_queries';
 import { errorResponse } from '../../utils/response_utils';
 import { Context } from 'hono';
 
@@ -16,7 +15,6 @@ export const registerRoute = async (context: Context): Promise<Response> => {
 	const stub = env.WL_DURABLE_OBJECT.get(id);
 
 	const exists = await stub.checkIfUserExistsByEmail(email);
-	console.log('exists', exists);
 	if (exists.length > 0) {
 		return errorResponse('User already exists', 400);
 	}

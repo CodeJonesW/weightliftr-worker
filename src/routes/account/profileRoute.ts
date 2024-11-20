@@ -1,5 +1,4 @@
 import { Context } from 'hono';
-import { findUserClientData } from '../../utils/db_utils/db_queries';
 import { errorResponse } from '../../utils/response_utils';
 
 export const profileRoute = async (context: Context): Promise<Response> => {
