@@ -37,6 +37,24 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		this.sql.exec(schema);
 	}
 
+	checkIfUserExistsByEmail(email: string) {
+		const cursor = this.ctx.storage.sql.exec<{ email: string }>('SELECT email, user_password FROM Users WHERE email = ?', email);
+		// @ts-ignore
+		const result = cursor.raw().toArray();
+		return result.length > 0 ? result[0] : [];
+	}
+
+	insertUser(email: string, hashedPassword: string) {
+		const cursor = this.ctx.storage.sql.exec<{ email: string }>(
+			'INSERT INTO Users (email, user_password) VALUES (?, ?) RETURNING email;',
+			email,
+			hashedPassword
+		);
+		// @ts-ignore
+		const result = cursor.raw().toArray();
+		return result.length > 0;
+	}
+
 	async getWorkout(workout_id: string) {
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>(

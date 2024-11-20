@@ -10,7 +10,7 @@ export const createWorkoutRoute = async (context: Context): Promise<Response> =>
 		if (authResponse instanceof Response) return authResponse;
 
 		const user = authResponse.user;
-		const id = env.WL_DURABLE_OBJECT.idFromString(user.user_id);
+		const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
 		const stub = env.WL_DURABLE_OBJECT.get(id);
 		const result = await stub.createWorkout();
 

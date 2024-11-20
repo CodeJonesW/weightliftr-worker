@@ -10,8 +10,10 @@ export const profileRoute = async (context: Context): Promise<Response> => {
 	if (authResponse instanceof Response) return authResponse;
 
 	const user = authResponse.user;
+	console.log('user', user);
 
-	const id = env.WL_DURABLE_OBJECT.idFromString(user.user_id);
+	const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
+	console.log('id', id);
 	const stub = env.WL_DURABLE_OBJECT.get(id);
 
 	let workouts = await stub.getWorkouts();

@@ -14,6 +14,7 @@ export const verifyToken = async (request: Request, env: Env): Promise<{ user: a
 	const token = authHeader.split(' ')[1];
 	try {
 		const decoded = jwt.verify(token, env.JWT_SECRET);
+		console.log('Decoded', decoded);
 		return { user: decoded };
 	} catch (error) {
 		return new Response(JSON.stringify({ error: 'Invalid token' }), {
