@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id varchar(500) PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    workout_text TEXT
+    workout_title TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Exercise (
@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS Exercise (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(workout_id) REFERENCES Workout(workout_id)
 );
+
 `;
 
 export default schema;

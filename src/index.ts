@@ -68,10 +68,11 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 			console.log('rawResult:', rawResult);
 
 			// @ts-ignore
-			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
+			const result = rawResult.map(([workout_id, created_at, workout_text, workout_title]) => ({
 				workout_id,
 				created_at,
 				workout_text,
+				workout_title,
 			}));
 
 			// Return the first object if only one result is expected
@@ -90,10 +91,11 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 			console.log('rawResult:', rawResult);
 
 			// @ts-ignore
-			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
+			const result = rawResult.map(([workout_id, created_at, workout_text, workout_title]) => ({
 				workout_id,
 				created_at,
 				workout_text,
+				workout_title,
 			}));
 
 			return result;
@@ -106,8 +108,9 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	createWorkout() {
 		const workoutId = uuidv4();
 		const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
-			'INSERT INTO Workout (workout_id) VALUES (?) RETURNING workout_id',
-			workoutId
+			'INSERT INTO Workout (workout_id, workout_title) VALUES (?, ?) RETURNING workout_id',
+			workoutId,
+			'My Workout'
 		);
 		// @ts-ignore
 		const result = cursor.raw().toArray();
@@ -115,12 +118,12 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		return result[0][0];
 	}
 
-	updateWorkout(workoutId: string, workoutText: string) {
+	updateWorkout(workoutId: string, workout_title: string) {
 		console.log('UPDATE Workout SET workout_text = ? WHERE workout_id = ?');
 		try {
 			const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
-				'UPDATE Workout SET workout_text = ? WHERE workout_id = ?',
-				workoutText,
+				'UPDATE Workout SET workout_title = ? WHERE workout_id = ?',
+				workout_title,
 				workoutId
 			);
 			console.log('cursor:', cursor);
