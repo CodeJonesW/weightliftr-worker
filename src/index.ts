@@ -58,21 +58,17 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 	getWorkout(workout_id: string) {
 		try {
-			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>(
-				'SELECT * FROM Workout WHERE workout_id = ?',
-				workout_id
-			);
+			const cursor = this.ctx.storage.sql.exec('SELECT * FROM Workout WHERE workout_id = ?', workout_id);
 
 			// @ts-ignore
 			const rawResult = cursor.raw().toArray();
 			console.log('rawResult:', rawResult);
 
 			// @ts-ignore
-			const result = rawResult.map(([workout_id, created_at, workout_text, workout_title]) => ({
+			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
 				workout_id,
 				created_at,
 				workout_text,
-				workout_title,
 			}));
 
 			// Return the first object if only one result is expected
@@ -84,18 +80,17 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 	getWorkouts() {
 		try {
-			const cursor = this.ctx.storage.sql.exec<{ workout_id: string; workout_text: string }>('SELECT * FROM Workout');
+			const cursor = this.ctx.storage.sql.exec('SELECT * FROM Workout');
 
 			// @ts-ignore
 			const rawResult = cursor.raw().toArray();
 			console.log('rawResult:', rawResult);
 
 			// @ts-ignore
-			const result = rawResult.map(([workout_id, created_at, workout_text, workout_title]) => ({
+			const result = rawResult.map(([workout_id, created_at, workout_text]) => ({
 				workout_id,
 				created_at,
 				workout_text,
-				workout_title,
 			}));
 
 			return result;
@@ -107,8 +102,8 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 	createWorkout() {
 		const workoutId = uuidv4();
-		const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
-			'INSERT INTO Workout (workout_id, workout_title) VALUES (?, ?) RETURNING workout_id',
+		const cursor = this.ctx.storage.sql.exec(
+			'INSERT INTO Workout (workout_id, workout_text) VALUES (?, ?) RETURNING workout_id',
 			workoutId,
 			'My Workout'
 		);
@@ -118,14 +113,10 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		return result[0][0];
 	}
 
-	updateWorkout(workoutId: string, workout_title: string) {
+	updateWorkout(workoutId: string, workout_text: string) {
 		console.log('UPDATE Workout SET workout_text = ? WHERE workout_id = ?');
 		try {
-			const cursor = this.ctx.storage.sql.exec<{ workout_id: string }>(
-				'UPDATE Workout SET workout_title = ? WHERE workout_id = ?',
-				workout_title,
-				workoutId
-			);
+			const cursor = this.ctx.storage.sql.exec('UPDATE Workout SET workout_text = ? WHERE workout_id = ?', workout_text, workoutId);
 			console.log('cursor:', cursor);
 		} catch (e) {
 			console.error('Error updating workout:', e);
@@ -134,12 +125,9 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 
 	deleteWorkout(workoutId: string) {
-		const c1 = this.ctx.storage.sql.exec<{ workout_id: string }>('DELETE FROM Exercise WHERE workout_id = ?;', workoutId);
+		const c1 = this.ctx.storage.sql.exec('DELETE FROM Exercise WHERE workout_id = ?;', workoutId);
 
-		const c2 = this.ctx.storage.sql.exec<{ workout_id: string }>(
-			'DELETE FROM Workout WHERE workout_id = ? RETURNING workout_id',
-			workoutId
-		);
+		const c2 = this.ctx.storage.sql.exec('DELETE FROM Workout WHERE workout_id = ? RETURNING workout_id', workoutId);
 		// @ts-ignore
 		const result = c2.raw().toArray();
 		return result[0][0];
@@ -147,7 +135,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 	createExercise(reps: string, sets: string, weight: string, name: string, workout_id: string) {
 		const exerciseId = uuidv4();
-		const cursor = this.ctx.storage.sql.exec<{ exercise_id: string }>(
+		const cursor = this.ctx.storage.sql.exec(
 			'INSERT INTO Exercise (exercise_id, reps, sets, weight, name, workout_id) VALUES (?, ?, ?, ?, ?, ?) RETURNING exercise_id',
 			exerciseId,
 			reps,
@@ -162,10 +150,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 
 	getExercisesByWorkoutId(workout_id: string) {
-		const cursor = this.ctx.storage.sql.exec<{ exercise_id: string; reps: string; sets: string; weight: string; name: string }>(
-			'SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?',
-			workout_id
-		);
+		const cursor = this.ctx.storage.sql.exec('SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?', workout_id);
 		// @ts-ignore
 		const rawResult = cursor.raw().toArray();
 		console.log('rawResult:', rawResult);

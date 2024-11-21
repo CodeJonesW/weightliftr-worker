@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS Workout (
     workout_id varchar(500) PRIMARY KEY,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    workout_title TEXT
+    workout_text TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Exercise (
