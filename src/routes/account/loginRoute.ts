@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
+import { recordLogin } from '../../utils/analytics';
 
 export const loginRoute = async (context: Context): Promise<Response> => {
 	const { req: request, env } = context;
@@ -23,6 +24,8 @@ export const loginRoute = async (context: Context): Promise<Response> => {
 	if (!match) {
 		return errorResponse('Invalid password', 401);
 	}
+
+	recordLogin(email, env);
 
 	const jwt = await import('jsonwebtoken');
 	const token = jwt.sign({ email: email }, env.JWT_SECRET, { expiresIn: '7d' });

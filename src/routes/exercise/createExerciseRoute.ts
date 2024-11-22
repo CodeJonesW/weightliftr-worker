@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
+import { recordExercise } from '../../utils/analytics';
 
 export const createExerciseRoute = async (context: Context): Promise<Response> => {
 	console.log('createExerciseRoute');
@@ -21,6 +22,8 @@ export const createExerciseRoute = async (context: Context): Promise<Response> =
 		const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
 		const stub = env.WL_DURABLE_OBJECT.get(id);
 		const result = await stub.createExercise(reps, sets, weight, name, workout_id);
+
+		recordExercise(reps, sets, weight, name, workout_id, user.email, env);
 
 		return new Response(JSON.stringify({ workout_id: result }), {
 			status: 200,
