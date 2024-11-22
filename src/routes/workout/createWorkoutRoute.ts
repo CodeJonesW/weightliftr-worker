@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
-import { recordWorkout } from '../../utils/analytics';
+import { recordWorkout } from '../../utils/record_analytics';
 
 export const createWorkoutRoute = async (context: Context): Promise<Response> => {
 	const { verifyToken } = await import('../../utils/auth');

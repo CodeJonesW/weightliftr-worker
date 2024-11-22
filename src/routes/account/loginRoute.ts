@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
-import { recordLogin } from '../../utils/analytics';
+import { recordLogin } from '../../utils/record_analytics';
 
 export const loginRoute = async (context: Context): Promise<Response> => {
 	const { req: request, env } = context;

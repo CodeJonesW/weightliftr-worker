@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { errorResponse } from '../../utils/response_utils';
-import { recordNewUser } from '../../utils/analytics';
+import { recordNewUser } from '../../utils/record_analytics';
 import { Context } from 'hono';
 
 export const registerRoute = async (context: Context): Promise<Response> => {

@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { errorResponse } from '../../utils/response_utils';
-import { recordExercise } from '../../utils/analytics';
+import { recordExercise } from '../../utils/record_analytics';
 
 export const createExerciseRoute = async (context: Context): Promise<Response> => {
 	console.log('createExerciseRoute');
