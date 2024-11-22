@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { errorResponse } from '../../utils/response_utils';
+import { recordNewUser } from '../../utils/user_analytics';
 import { Context } from 'hono';
 
 export const registerRoute = async (context: Context): Promise<Response> => {
@@ -25,6 +26,7 @@ export const registerRoute = async (context: Context): Promise<Response> => {
 	const response = await stub.insertUser(email, hashedPassword);
 
 	if (response) {
+		recordNewUser(email, env);
 		return new Response(JSON.stringify({ message: 'User added successfully' }), {
 			status: 200,
 			headers: { 'Content-Type': 'application/json' },

@@ -3,6 +3,7 @@ export interface Env {
 	DB: D1Database;
 	JWT_SECRET: string;
 	OPENAI_API_KEY: string;
+	WL_ANALYTICS_DATA: AnalyticsEngineDataset;
 }
 
 export interface User {
