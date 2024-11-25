@@ -3,6 +3,7 @@ import {
 	registerRoute,
 	profileRoute,
 	loginRoute,
+	weeklyStatsRoute,
 	createWorkoutRoute,
 	deleteWorkoutRoute,
 	getWorkoutRoute,
@@ -166,6 +167,17 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 		return result;
 	}
+
+	getWeeklyStats() {
+		const cursor = this.ctx.storage.sql.exec('SELECT weight FROM Exercise WHERE created_at > date("now", "-7 days")');
+		// @ts-ignore
+		const rawResult = cursor.raw().toArray();
+		const sum = rawResult.reduce((acc: number, [weight]: [string]) => {
+			if (Number.isNaN(parseInt(weight))) return acc;
+			return acc + parseInt(weight);
+		}, 0);
+		return sum;
+	}
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -174,6 +186,7 @@ const app = new Hono<{ Bindings: Env }>();
 app.post('/api/login', loginRoute);
 app.post('/api/register', registerRoute);
 app.get('/api/profile', profileRoute);
+app.get('/api/weekly-stats', weeklyStatsRoute);
 
 // Workout routes
 app.get('/api/workout', getWorkoutRoute);
