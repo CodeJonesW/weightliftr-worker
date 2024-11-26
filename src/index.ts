@@ -184,7 +184,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 		const cursor2 = this.ctx.storage.sql.exec('SELECT reps FROM exercise WHERE created_at > date("now", "-7 days")');
 		// @ts-ignore
-		const rawResult2 = cursor.raw().toArray();
+		const rawResult2 = cursor2.raw().toArray();
 		console.log('rawResult2', rawResult2);
 
 		const total_reps =
