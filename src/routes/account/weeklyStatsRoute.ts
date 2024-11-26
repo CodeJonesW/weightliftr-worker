@@ -13,11 +13,12 @@ export const weeklyStatsRoute = async (context: Context): Promise<Response> => {
 	const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
 	const stub = env.WL_DURABLE_OBJECT.get(id);
 
-	let total_weight_moved = await stub.getWeeklyStats();
+	let weekly_stats = await stub.getWeeklyStats();
 
 	const responseData = {
 		message: 'Weekly stats data',
-		total_weight_moved,
+		total_weight_moved: weekly_stats.total_weight_moved,
+		total_reps: weekly_stats.total_reps,
 	};
 
 	return new Response(JSON.stringify(responseData), {

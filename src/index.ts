@@ -81,7 +81,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 	getWorkouts() {
 		try {
-			const cursor = this.ctx.storage.sql.exec('SELECT * FROM Workout');
+			const cursor = this.ctx.storage.sql.exec('SELECT * FROM Workout ORDER BY created_at DESC');
 
 			// @ts-ignore
 			const rawResult = cursor.raw().toArray();
@@ -172,11 +172,29 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		const cursor = this.ctx.storage.sql.exec('SELECT weight FROM Exercise WHERE created_at > date("now", "-7 days")');
 		// @ts-ignore
 		const rawResult = cursor.raw().toArray();
-		const sum = rawResult.reduce((acc: number, [weight]: [string]) => {
-			if (Number.isNaN(parseInt(weight))) return acc;
-			return acc + parseInt(weight);
-		}, 0);
-		return sum;
+
+		console.log('rawResult', rawResult);
+		const total_weight_moved =
+			rawResult.length > 0
+				? rawResult.reduce((acc: number, [weight]: [string]) => {
+						if (Number.isNaN(parseInt(weight))) return acc;
+						return acc + parseInt(weight);
+				  }, 0)
+				: 0;
+
+		const cursor2 = this.ctx.storage.sql.exec('SELECT reps FROM exercise WHERE created_at > date("now", "-7 days")');
+		// @ts-ignore
+		const rawResult2 = cursor.raw().toArray();
+		console.log('rawResult2', rawResult2);
+
+		const total_reps =
+			rawResult2.length > 0
+				? rawResult2.reduce((acc: number, [reps]: [string]) => {
+						if (Number.isNaN(parseInt(reps))) return acc;
+						return acc + parseInt(reps);
+				  })
+				: 0;
+		return { total_weight_moved, total_reps };
 	}
 }
 
