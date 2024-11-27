@@ -9,6 +9,7 @@ import {
 	getWorkoutRoute,
 	updateWorkoutRoute,
 	createExerciseRoute,
+	createRowRoute,
 } from './routes';
 import { Hono } from 'hono';
 import { DurableObject } from 'cloudflare:workers';
@@ -36,6 +37,11 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
 		this.sql = ctx.storage.sql;
+		this.sql.exec(schema);
+		this.updateSchema();
+	}
+
+	updateSchema() {
 		this.sql.exec(schema);
 	}
 
@@ -127,8 +133,9 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 
 	deleteWorkout(workoutId: string) {
 		const c1 = this.ctx.storage.sql.exec('DELETE FROM Exercise WHERE workout_id = ?;', workoutId);
-
+		const c3 = this.ctx.storage.sql.exec('DELETE FROM Row WHERE workout_id = ?', workoutId);
 		const c2 = this.ctx.storage.sql.exec('DELETE FROM Workout WHERE workout_id = ? RETURNING workout_id', workoutId);
+
 		// @ts-ignore
 		const result = c2.raw().toArray();
 		return result[0][0];
@@ -151,13 +158,16 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 
 	getExercisesByWorkoutId(workout_id: string) {
-		const cursor = this.ctx.storage.sql.exec('SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?', workout_id);
+		const cursor1 = this.ctx.storage.sql.exec(
+			'SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?',
+			workout_id
+		);
 		// @ts-ignore
-		const rawResult = cursor.raw().toArray();
-		console.log('rawResult:', rawResult);
+		const rawResult1 = cursor1.raw().toArray();
+		console.log('rawResult:', rawResult1);
 
 		// @ts-ignore
-		const result = rawResult.map(([exercise_id, reps, sets, weight, name]) => ({
+		const exercises = rawResult1.map(([exercise_id, reps, sets, weight, name]) => ({
 			exercise_id,
 			reps,
 			sets,
@@ -165,6 +175,22 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 			name,
 		}));
 
+		const cursor2 = this.ctx.storage.sql.exec('SELECT time, distance FROM Row WHERE workout_id = ?', workout_id);
+		// @ts-ignore
+		const rawResult2 = cursor2.raw().toArray();
+
+		// @ts-ignore
+		const rows = rawResult2.map(([time, distance]) => ({
+			time,
+			distance,
+		}));
+
+		const result = {
+			exercises,
+			rows,
+		};
+		console.log('getExercises by workout result', result);
+		console.log('workout exercises', result.exercises);
 		return result;
 	}
 
@@ -196,6 +222,20 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				: 0;
 		return { total_weight_moved, total_reps };
 	}
+
+	createRow(distance: string, time: string, workout_id: string) {
+		const rowId = uuidv4();
+		const cursor = this.ctx.storage.sql.exec(
+			'INSERT INTO Row (row_id, distance, time, workout_id) VALUES (?, ?, ?, ?) RETURNING row_id',
+			rowId,
+			distance,
+			time,
+			workout_id
+		);
+		// @ts-ignore
+		const result = cursor.raw().toArray();
+		return result[0][0];
+	}
 }
 
 const app = new Hono<{ Bindings: Env }>();
@@ -214,5 +254,6 @@ app.put('/api/workout', updateWorkoutRoute);
 
 // Exercise routes
 app.post('/api/exercise', createExerciseRoute);
+app.post('api/row', createRowRoute);
 
 export default app;

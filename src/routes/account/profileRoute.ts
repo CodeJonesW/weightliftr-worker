@@ -12,6 +12,7 @@ export const profileRoute = async (context: Context): Promise<Response> => {
 
 	const id = env.WL_DURABLE_OBJECT.idFromName(user.email);
 	const stub = env.WL_DURABLE_OBJECT.get(id);
+	stub.updateSchema();
 
 	let workouts = await stub.getWorkouts();
 
