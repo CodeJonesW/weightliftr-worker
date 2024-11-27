@@ -23,6 +23,14 @@ CREATE TABLE IF NOT EXISTS Exercise (
     FOREIGN KEY(workout_id) REFERENCES Workout(workout_id)
 );
 
+CREATE TABLE IF NOT EXISTS Row (
+    row_id varchar(500) PRIMARY KEY,
+    workout_id varchar(500),
+    distance integer,
+    time varchar(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(workout_id) REFERENCES Workout(workout_id)
+);
 `;
 
 export default schema;

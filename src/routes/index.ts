@@ -7,3 +7,4 @@ export { deleteWorkoutRoute } from './workout/deleteWorkoutRoute';
 export { getWorkoutRoute } from './workout/getWorkoutRoute';
 export { updateWorkoutRoute } from './workout/updateWorkoutRoute';
 export { createExerciseRoute } from './exercise/createExerciseRoute';
+export { createRowRoute } from './exercise/createRowRoute';

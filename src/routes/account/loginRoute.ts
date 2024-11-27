@@ -12,6 +12,9 @@ export const loginRoute = async (context: Context): Promise<Response> => {
 	}
 	const id = env.WL_DURABLE_OBJECT.idFromName(email);
 	const stub = env.WL_DURABLE_OBJECT.get(id);
+
+	stub.updateSchema();
+
 	const userData = await stub.checkIfUserExistsByEmail(email);
 
 	if (userData.length === 0) {
