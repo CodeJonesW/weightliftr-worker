@@ -231,7 +231,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				? rawResult3.reduce((acc: number, sets: string) => {
 						if (Number.isNaN(parseInt(sets))) return acc;
 						return acc + parseInt(sets);
-				  })
+				  }, 0)
 				: 0;
 
 		return { total_weight_moved, total_reps, total_sets };
