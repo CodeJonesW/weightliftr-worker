@@ -220,7 +220,21 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 						return acc + parseInt(reps);
 				  }, 0)
 				: 0;
-		return { total_weight_moved, total_reps };
+
+		const cursor3 = this.ctx.storage.sql.exec('SELECT sets FROM exercise WHERE created_at > date("now", "-7 days")');
+		// @ts-ignore
+		const rawResult3 = cursor3.raw().toArray().flat();
+		console.log('raw result 3', rawResult3);
+
+		const total_sets =
+			rawResult3.length > 0
+				? rawResult3.reduce((acc: number, sets: string) => {
+						if (Number.isNaN(parseInt(sets))) return acc;
+						return acc + parseInt(sets);
+				  })
+				: 0;
+
+		return { total_weight_moved, total_reps, total_sets };
 	}
 
 	createRow(distance: string, time: string, workout_id: string) {
