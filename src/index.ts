@@ -157,6 +157,24 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 		return result[0][0];
 	}
 
+	editExercise(reps: string, sets: string, weight: string, name: string, exercise_id: string) {
+		const cursor = this.ctx.storage.sql.exec(
+			`UPDATE Exercise
+			 SET 
+			 reps = ?,
+    		 sets = ?,
+			 weight = ?,
+			 name = ?,
+			 WHERE exercise_id = ?;`,
+			reps,
+			sets,
+			weight,
+			name,
+			exercise_id
+		);
+		console.log('cursor', cursor);
+	}
+
 	getExercisesByWorkoutId(workout_id: string) {
 		const cursor1 = this.ctx.storage.sql.exec(
 			'SELECT exercise_id, reps, sets, weight, name FROM Exercise WHERE workout_id = ?',
