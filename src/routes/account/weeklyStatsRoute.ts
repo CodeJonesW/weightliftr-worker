@@ -20,6 +20,7 @@ export const weeklyStatsRoute = async (context: Context): Promise<Response> => {
 		total_weight_moved: weekly_stats.total_weight_moved,
 		total_reps: weekly_stats.total_reps,
 		total_sets: weekly_stats.total_sets,
+		elr: weekly_stats.elr,
 	};
 
 	return new Response(JSON.stringify(responseData), {

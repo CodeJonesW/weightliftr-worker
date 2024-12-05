@@ -195,10 +195,9 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 	}
 
 	getWeeklyStats() {
-		const cursor = this.ctx.storage.sql.exec('SELECT weight FROM Exercise WHERE created_at > date("now", "-7 days")');
+		const cursor = this.ctx.storage.sql.exec('SELECT weight FROM Exercise WHERE created_at > date("now", "-7 days", "weekday 0")');
 		// @ts-ignore
 		const rawResult = cursor.raw().toArray().flat();
-
 		// console.log('rawResult', rawResult);
 		const total_weight_moved =
 			rawResult.length > 0
@@ -208,7 +207,7 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				  }, 0)
 				: 0;
 
-		const cursor2 = this.ctx.storage.sql.exec('SELECT reps FROM exercise WHERE created_at > date("now", "-7 days")');
+		const cursor2 = this.ctx.storage.sql.exec('SELECT reps FROM exercise WHERE created_at > date("now", "-7 days", "weekday 0")');
 		// @ts-ignore
 		const rawResult2 = cursor2.raw().toArray().flat();
 		// console.log('rawResult2', rawResult2);
@@ -221,10 +220,10 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				  }, 0)
 				: 0;
 
-		const cursor3 = this.ctx.storage.sql.exec('SELECT sets FROM exercise WHERE created_at > date("now", "-7 days")');
+		const cursor3 = this.ctx.storage.sql.exec('SELECT sets FROM exercise WHERE created_at > date("now", "-7 days", "weekday 0")');
 		// @ts-ignore
 		const rawResult3 = cursor3.raw().toArray().flat();
-		console.log('raw result 3', rawResult3);
+		// console.log('raw result 3', rawResult3);
 
 		const total_sets =
 			rawResult3.length > 0
@@ -234,7 +233,21 @@ export class WL_DURABLE_OBJECT extends DurableObject {
 				  }, 0)
 				: 0;
 
-		return { total_weight_moved, total_reps, total_sets };
+		// Effort Load Ratio
+		const elr = this.calculateELR(total_weight_moved, total_reps, total_sets);
+
+		return { total_weight_moved, total_reps, total_sets, elr };
+	}
+
+	calculateELR(totalWeight: number, totalReps: number, totalSets: number): number {
+		if (totalReps <= 0 || totalSets <= 0 || totalWeight <= 0) {
+			return 0;
+		}
+
+		const repsFactor = Math.sqrt(totalReps);
+		const elr = totalWeight / repsFactor + totalWeight / totalSets;
+
+		return elr;
 	}
 
 	createRow(distance: string, time: string, workout_id: string) {
